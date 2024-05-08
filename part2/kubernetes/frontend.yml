@@ -1,0 +1,51 @@
+apiVersion: apps/v1 # kubernetes orginises the API architecture: apps/v1 are orginised in a different namespace
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: exam-violanguyen
+
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3d-k3s-default-agent-2 # secifying the worker
+      containers:
+        - name: frontend
+          image: etstm/exam-frontend
+          ports:
+            - containerPort: 80
+          env:
+            - name: API_HOST
+              value: "localhost"
+            - name: API_PORT
+              value: "80"
+          resources: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: exam-violanguyen
+spec:
+  type: NodePort
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30001
