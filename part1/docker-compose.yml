@@ -6,14 +6,14 @@ services:
     expose:
       - 5432
     env_file:
-      - .env
+      - .env # env_file created and docker ignore file implemented
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
-    healthcheck:
+    healthcheck: # healthcheck implemented to make sure that database is up and operational
       test:
         [
           "CMD-SHELL",
@@ -23,20 +23,25 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    volumes:
+      - db:/var/lib/postgresql/data
     networks:
       - database
-      
+
   web:
     build: ./pointsApp
     ports:
       - 5000:5000
     networks:
+      - database # I need to put the web service on the same network as my database to make sure that i have my connection available as i have no API server in between
       - web
-      - database
-    depends_on:
+    depends_on: # the web application will only start after the database is up and ready to accept connections
       db:
         condition: service_healthy
 
-networks:
+volumes: # volumes to ensure persistant data storage => no data is stored in the image itself.
+  db:
+
+networks: # networks created to make sure that database is separated
   web:
   database:

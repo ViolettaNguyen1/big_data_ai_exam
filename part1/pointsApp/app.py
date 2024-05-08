@@ -2,8 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://student:examen@db:5432/points'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://student:examen@db:5432/points' # it would be possible to use environment variables to hide the URL with sensitive information, but i do not know how to use env. variables in python
 db = SQLAlchemy(app)
 
 class Student(db.Model):
